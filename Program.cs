@@ -15,6 +15,9 @@ builder.Services.AddDbContext<UsersAPIDbContext>(options =>
 // Repositories
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+// Services
+builder.Services.AddScoped<IUserService, UserService>();
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
