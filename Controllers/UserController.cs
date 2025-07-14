@@ -71,6 +71,7 @@ namespace UsersAPI.Namespace
             };
 
             await _context.AddAsync(user);
+            await _context.SaveChangesAsync();
 
             return Ok(new UserDto
             {
