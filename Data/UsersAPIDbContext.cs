@@ -22,12 +22,12 @@ public partial class UsersAPIDbContext : DbContext
     {
         modelBuilder.Entity<User>(entity =>
         {
-            entity.Property(e => e.Id).ValueGeneratedNever();
-            entity.Property(e => e.DateOfBirth).HasColumnType("datetime");
-            entity.Property(e => e.Email).HasMaxLength(50);
+            entity.Property(e => e.Id).ValueGeneratedOnAdd();
             entity.Property(e => e.FirstName).HasMaxLength(50);
+            entity.Property(e => e.LastName).HasMaxLength(50);
+            entity.Property(e => e.Email).HasMaxLength(50);
             entity.Property(e => e.Phone).HasMaxLength(15);
-            entity.Property(e => e.SecondName).HasMaxLength(50);
+            entity.Property(e => e.DateOfBirth).HasColumnType("datetime");
         });
 
         OnModelCreatingPartial(modelBuilder);
