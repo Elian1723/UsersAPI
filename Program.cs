@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using UsersAPI;
 using UsersAPI.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<UsersAPIDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("UsersAPIDbContext"))
 );
+
+// Repositories
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

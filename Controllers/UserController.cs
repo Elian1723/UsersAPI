@@ -1,6 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using UsersAPI.Data;
 using UsersAPI.Models;
 
 namespace UsersAPI.Namespace
@@ -9,17 +7,18 @@ namespace UsersAPI.Namespace
     [ApiController]
     public class UserController : ControllerBase
     {
-        private UsersAPIDbContext _context;
-
-        public UserController(UsersAPIDbContext context)
+        private readonly IUserRepository _userRepository;
+        public UserController(IUserRepository userRepository)
         {
-            _context = context;
+            _userRepository = userRepository;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAllUsersAsync()
         {
-            return Ok(await _context.Users.Select(u => new UserDto
+            var users = await _userRepository.GetAllAsync();
+
+            return Ok(users.Select(u => new UserDto
             {
                 Id = u.Id,
                 FirstName = u.FirstName,
@@ -28,50 +27,15 @@ namespace UsersAPI.Namespace
                 Phone = u.Phone,
                 DateOfBirth = u.DateOfBirth,
                 IsActive = u.IsActive
-            }).ToListAsync());
+            }).ToList());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetUserByIdAsync(int id)
         {
-            var users = await _context.Users.FindAsync(id);
+            var user = await _userRepository.GetByIdAsync(id);
 
-            if (users == null)
-            {
-                return NotFound();
-            }
-            return Ok(new UserDto
-            {
-                Id = users.Id,
-                FirstName = users.FirstName,
-                LastName = users.LastName,
-                Email = users.Email,
-                Phone = users.Phone,
-                DateOfBirth = users.DateOfBirth,
-                IsActive = users.IsActive
-            });
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> CreateUserAsync([FromBody] UserCreateDto userCreateDto)
-        {
-            if (userCreateDto == null)
-            {
-                return BadRequest("User data is null.");
-            }
-
-            var user = new User
-            {
-                FirstName = userCreateDto.FirstName,
-                LastName = userCreateDto.LastName,
-                Email = userCreateDto.Email,
-                Phone = userCreateDto.Phone,
-                DateOfBirth = userCreateDto.DateOfBirth,
-                IsActive = true
-            };
-
-            await _context.AddAsync(user);
-            await _context.SaveChangesAsync();
+            if (user == null) return NotFound();
 
             return Ok(new UserDto
             {
@@ -85,10 +49,39 @@ namespace UsersAPI.Namespace
             });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> CreateUserAsync([FromBody] UserCreateDto userCreateDto)
+        {
+            if (userCreateDto == null) return BadRequest("User data is null.");
+
+            var user = new User
+            {
+                FirstName = userCreateDto.FirstName,
+                LastName = userCreateDto.LastName,
+                Email = userCreateDto.Email,
+                Phone = userCreateDto.Phone,
+                DateOfBirth = userCreateDto.DateOfBirth,
+                IsActive = true
+            };
+
+            var userCreated = await _userRepository.CreateAsync(user);
+
+            return Ok(new UserDto
+            {
+                Id = userCreated.Id,
+                FirstName = userCreated.FirstName,
+                LastName = userCreated.LastName,
+                Email = userCreated.Email,
+                Phone = userCreated.Phone,
+                DateOfBirth = userCreated.DateOfBirth,
+                IsActive = userCreated.IsActive
+            });
+        }
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateUserAsync(int id, [FromBody] UserUpdateDto userUpdateDto)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _userRepository.GetByIdAsync(id);
 
             if (user == null) return NotFound("User not found");
 
@@ -100,7 +93,7 @@ namespace UsersAPI.Namespace
             user.Phone = userUpdateDto.Phone;
             user.DateOfBirth = userUpdateDto.DateOfBirth;
 
-            await _context.SaveChangesAsync();
+            await _userRepository.UpdateAsync(user);
 
             return Ok(new UserDto
             {
@@ -117,14 +110,13 @@ namespace UsersAPI.Namespace
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUserAsync(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _userRepository.GetByIdAsync(id);
 
             if (user == null) return NotFound("User not found");
 
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            await _userRepository.DeleteAsync(user.Id);
 
-            return Ok();
+            return NoContent();
         }
     }
 }
