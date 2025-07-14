@@ -17,7 +17,7 @@ namespace UsersAPI.Namespace
         }
 
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAllUsersAsync()
         {
             return Ok(await _context.Users.Select(u => new UserDto
             {
@@ -32,7 +32,7 @@ namespace UsersAPI.Namespace
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> GetUserByIdAsync(int id)
         {
             var users = await _context.Users.FindAsync(id);
 
@@ -53,7 +53,7 @@ namespace UsersAPI.Namespace
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] UserCreateDto userCreateDto)
+        public async Task<IActionResult> CreateUserAsync([FromBody] UserCreateDto userCreateDto)
         {
             if (userCreateDto == null)
             {
@@ -83,6 +83,48 @@ namespace UsersAPI.Namespace
                 DateOfBirth = user.DateOfBirth,
                 IsActive = user.IsActive
             });
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUserAsync(int id, [FromBody] UserUpdateDto userUpdateDto)
+        {
+            var user = await _context.Users.FindAsync(id);
+
+            if (user == null) return NotFound("User not found");
+
+            if (userUpdateDto == null) return BadRequest("User data is null");
+
+            user.FirstName = userUpdateDto.FirstName;
+            user.LastName = userUpdateDto.LastName;
+            user.Email = userUpdateDto.Email;
+            user.Phone = userUpdateDto.Phone;
+            user.DateOfBirth = userUpdateDto.DateOfBirth;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new UserDto
+            {
+                Id = user.Id,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                Email = user.Email,
+                Phone = user.Phone,
+                DateOfBirth = user.DateOfBirth,
+                IsActive = user.IsActive
+            });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteUserAsync(int id)
+        {
+            var user = await _context.Users.FindAsync(id);
+
+            if (user == null) return NotFound("User not found");
+
+            _context.Users.Remove(user);
+            await _context.SaveChangesAsync();
+
+            return Ok();
         }
     }
 }
