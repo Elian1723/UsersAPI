@@ -1,3 +1,4 @@
+using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using UsersAPI.Models;
 
@@ -8,10 +9,14 @@ namespace UsersAPI.Namespace
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IValidator<UserCreateDto> _userCreateValidator;
+        private readonly IValidator<UserUpdateDto> _userUpdateValidator;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IValidator<UserCreateDto> userCreateValidator, IValidator<UserUpdateDto> userUpdateValidator)
         {
             _userService = userService;
+            _userCreateValidator = userCreateValidator;
+            _userUpdateValidator = userUpdateValidator;
         }
 
         [HttpGet]
@@ -49,7 +54,9 @@ namespace UsersAPI.Namespace
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] UserCreateDto userCreateDto)
         {
-            if (userCreateDto == null) return BadRequest("User data is null.");
+            var validationResult = await _userCreateValidator.ValidateAsync(userCreateDto);
+
+            if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
 
             var user = await _userService.CreateUserAsync(userCreateDto);
 
@@ -61,6 +68,10 @@ namespace UsersAPI.Namespace
         {
             try
             {
+                var validationResult = await _userUpdateValidator.ValidateAsync(userUpdateDto);
+
+                if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
+
                 var user = await _userService.UpdateUserAsync(id, userUpdateDto);
 
                 return Ok(user);
