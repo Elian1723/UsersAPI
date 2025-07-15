@@ -55,13 +55,20 @@ namespace UsersAPI.Namespace
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] UserCreateDto userCreateDto)
         {
-            var validationResult = await _userCreateValidator.ValidateAsync(userCreateDto);
+            try
+            {
+                var validationResult = await _userCreateValidator.ValidateAsync(userCreateDto);
 
-            if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
+                if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
 
-            var user = await _userService.CreateUserAsync(userCreateDto);
+                var user = await _userService.CreateUserAsync(userCreateDto);
 
-            return Ok(user);
+                return Ok(user);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("{id}")]

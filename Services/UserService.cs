@@ -85,6 +85,8 @@ public class UserService : IUserService
 
     public async Task<UserDto> CreateUserAsync(UserCreateDto userCreateDto)
     {
+        if (await _userRepository.EmailExistsAsync(userCreateDto.Email)) throw new InvalidOperationException($"The email {userCreateDto.Email} already exists");
+
         var user = new User
         {
             FirstName = userCreateDto.FirstName,
@@ -112,6 +114,8 @@ public class UserService : IUserService
     public async Task<UserDto> UpdateUserAsync(int id, UserUpdateDto userUpdateDto)
     {
         var user = await _userRepository.GetByIdAsync(id) ?? throw new InvalidOperationException("User not found");
+
+        if (await _userRepository.EmailExistsAsync(userUpdateDto.Email)) throw new InvalidOperationException($"The email {userUpdateDto.Email} already exists");
 
         user.FirstName = userUpdateDto.FirstName;
         user.LastName = userUpdateDto.LastName;
@@ -165,13 +169,5 @@ public class UserService : IUserService
         await _userRepository.UpdateAsync(user);
 
         return true;
-    }
-    public async Task<bool> ExistsEmailAsync(string email)
-    {
-        if (string.IsNullOrEmpty(email.Trim())) return false;
-
-        var user = await _userRepository.GetByEmailAsync(email);
-
-        return user != null;
     }
 }

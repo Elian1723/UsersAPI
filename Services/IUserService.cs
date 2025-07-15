@@ -13,5 +13,4 @@ public interface IUserService
     Task<bool> DeleteUserAsync(int id);
     Task<bool> ActivateUserAsync(int id);
     Task<bool> DeactivateUserAsync(int id);
-    Task<bool> ExistsEmailAsync(string email);
 }
