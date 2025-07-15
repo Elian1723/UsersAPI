@@ -1,4 +1,5 @@
-﻿using UsersAPI.DTOs;
+﻿using AutoMapper;
+using UsersAPI.DTOs;
 using UsersAPI.Models;
 using UsersAPI.Repository;
 
@@ -7,26 +8,19 @@ namespace UsersAPI.Services;
 public class UserService : IUserService
 {
     private readonly IUserRepository _userRepository;
+    private readonly IMapper _mapper;
 
-    public UserService(IUserRepository userRepository)
+    public UserService(IUserRepository userRepository, IMapper mapper)
     {
         _userRepository = userRepository;
+        _mapper = mapper;
     }
 
     public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
     {
         var users = await _userRepository.GetAllAsync();
 
-        return users.Select(u => new UserDto
-        {
-            Id = u.Id,
-            FirstName = u.FirstName,
-            LastName = u.LastName,
-            Email = u.Email,
-            Phone = u.Phone,
-            DateOfBirth = u.DateOfBirth,
-            IsActive = u.IsActive
-        });
+        return _mapper.Map<IEnumerable<UserDto>>(users);
     }
 
     public async Task<UserDto?> GetUserByIdAsync(int id)
@@ -35,16 +29,7 @@ public class UserService : IUserService
 
         if (user == null) return null;
 
-        return new UserDto
-        {
-            Id = user.Id,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Email = user.Email,
-            Phone = user.Phone,
-            DateOfBirth = user.DateOfBirth,
-            IsActive = user.IsActive
-        };
+        return _mapper.Map<UserDto>(user);
     }
 
     public async Task<UserDto?> GetUserByEmailAsync(string email)
@@ -55,60 +40,25 @@ public class UserService : IUserService
 
         if (user == null) return null;
 
-        return new UserDto
-        {
-            Id = user.Id,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Email = user.Email,
-            Phone = user.Phone,
-            DateOfBirth = user.DateOfBirth,
-            IsActive = user.IsActive
-        };
+        return _mapper.Map<UserDto>(user);
     }
 
     public async Task<IEnumerable<UserDto>> GetActiveUsersAsync()
     {
         var users = await _userRepository.GetActiveUsersAsync();
 
-        return users.Select(u => new UserDto
-        {
-            Id = u.Id,
-            FirstName = u.FirstName,
-            LastName = u.LastName,
-            Email = u.Email,
-            Phone = u.Phone,
-            DateOfBirth = u.DateOfBirth,
-            IsActive = u.IsActive
-        });
+        return _mapper.Map<IEnumerable<UserDto>>(users);
     }
 
     public async Task<UserDto> CreateUserAsync(UserCreateDto userCreateDto)
     {
         if (await _userRepository.EmailExistsAsync(userCreateDto.Email)) throw new InvalidOperationException($"The email {userCreateDto.Email} already exists");
 
-        var user = new User
-        {
-            FirstName = userCreateDto.FirstName,
-            LastName = userCreateDto.LastName,
-            Email = userCreateDto.Email,
-            Phone = userCreateDto.Phone,
-            DateOfBirth = userCreateDto.DateOfBirth,
-            IsActive = true
-        };
+        var user = _mapper.Map<User>(userCreateDto);
 
         var userCreated = await _userRepository.CreateAsync(user);
 
-        return new UserDto
-        {
-            Id = userCreated.Id,
-            FirstName = userCreated.FirstName,
-            LastName = userCreated.LastName,
-            Email = userCreated.Email,
-            Phone = userCreated.Phone,
-            DateOfBirth = userCreated.DateOfBirth,
-            IsActive = userCreated.IsActive
-        };
+        return _mapper.Map<UserDto>(userCreated);
     }
 
     public async Task<UserDto> UpdateUserAsync(int id, UserUpdateDto userUpdateDto)
@@ -125,16 +75,7 @@ public class UserService : IUserService
 
         await _userRepository.UpdateAsync(user);
 
-        return new UserDto
-        {
-            Id = user.Id,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            Email = user.Email,
-            Phone = user.Phone,
-            DateOfBirth = user.DateOfBirth,
-            IsActive = user.IsActive
-        };
+        return _mapper.Map<UserDto>(user);
     }
 
     public async Task<bool> DeleteUserAsync(int id)

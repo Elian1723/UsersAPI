@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using UsersAPI.Automappers;
 using UsersAPI.Data;
 using UsersAPI.DTOs;
 using UsersAPI.Repository;
@@ -25,6 +26,9 @@ builder.Services.AddScoped<IUserService, UserService>();
 // Validators
 builder.Services.AddScoped<IValidator<UserCreateDto>, UserCreateValidator>();
 builder.Services.AddScoped<IValidator<UserUpdateDto>, UserUpdateValidator>();
+
+// Mappers
+builder.Services.AddAutoMapper(typeof(MappingProfile));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
