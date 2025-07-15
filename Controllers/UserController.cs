@@ -8,6 +8,7 @@ namespace UsersAPI.Namespace
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+
         public UserController(IUserService userService)
         {
             _userService = userService;
@@ -25,7 +26,24 @@ namespace UsersAPI.Namespace
         {
             var user = await _userService.GetUserByIdAsync(id);
 
-            return user == null ? Ok(user) : NotFound();
+            return user != null ? Ok(user) : NotFound();
+        }
+
+        [HttpGet("email/{email}")]
+        public async Task<IActionResult> GetUserByEmail(string email)
+        {
+            if (string.IsNullOrEmpty(email.Trim())) return BadRequest("Email is required");
+
+            var user = await _userService.GetUserByEmailAsync(email);
+
+            return user != null ? Ok(user) : NotFound();
+        }
+
+        [HttpGet("active")]
+        public async Task<IActionResult> GetActiveUsers()
+        {
+            var users = await _userService.GetActiveUsersAsync();
+            return Ok(users.ToList());
         }
 
         [HttpPost]
@@ -39,7 +57,7 @@ namespace UsersAPI.Namespace
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUserAsync(int id, [FromBody] UserUpdateDto userUpdateDto)
+        public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateDto userUpdateDto)
         {
             try
             {
@@ -53,8 +71,24 @@ namespace UsersAPI.Namespace
             }
         }
 
+        [HttpPut("{id}/activate")]
+        public async Task<IActionResult> ActivateUser(int id)
+        {
+            bool activated = await _userService.ActivateUserAsync(id);
+
+            return activated ? NoContent() : NotFound();
+        }
+
+        [HttpPut("{id}/deactivate")]
+        public async Task<IActionResult> DeactivateUser(int id)
+        {
+            bool deactivated = await _userService.DeactivateUserAsync(id);
+
+            return deactivated ? NoContent() : NotFound();
+        }
+
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUserAsync(int id)
+        public async Task<IActionResult> DeleteUser(int id)
         {
             bool deleted = await _userService.DeleteUserAsync(id);
 

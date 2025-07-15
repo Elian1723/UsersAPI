@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using UsersAPI.Data;
 using UsersAPI.Models;
 
@@ -6,16 +7,20 @@ namespace UsersAPI;
 
 public class UserRepository : IUserRepository
 {
-    private UsersAPIDbContext _context;
+    private readonly UsersAPIDbContext _context;
 
     public UserRepository(UsersAPIDbContext context)
     {
         _context = context;
     }
 
-    public async Task<IEnumerable<User>> GetAllAsync() => await _context.Users.ToListAsync();
+    public async Task<IEnumerable<User>> GetAllAsync() => await _context.Users.OrderBy(u => u.FirstName).ToListAsync();
 
     public async Task<User?> GetByIdAsync(int id) => await _context.Users.FindAsync(id);
+
+    public async Task<User?> GetByEmailAsync(string email) => await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+    public async Task<IEnumerable<User>> GetActiveUsersAsync() => await _context.Users.Where(u => u.IsActive == true).OrderBy(u => u.FirstName).ToListAsync();
 
     public async Task<User> CreateAsync(User user)
     {
