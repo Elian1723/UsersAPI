@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace UsersAPI;
+﻿namespace UsersAPI.DTOs;
 
 public class UserUpdateDto
 {

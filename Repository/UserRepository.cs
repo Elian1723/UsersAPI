@@ -1,9 +1,8 @@
-﻿using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using UsersAPI.Data;
 using UsersAPI.Models;
 
-namespace UsersAPI;
+namespace UsersAPI.Repository;
 
 public class UserRepository : IUserRepository
 {

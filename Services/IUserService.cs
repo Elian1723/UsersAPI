@@ -1,6 +1,6 @@
-﻿using UsersAPI.Models;
+﻿using UsersAPI.DTOs;
 
-namespace UsersAPI;
+namespace UsersAPI.Services;
 
 public interface IUserService
 {

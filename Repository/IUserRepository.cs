@@ -1,6 +1,6 @@
 ﻿using UsersAPI.Models;
 
-namespace UsersAPI;
+namespace UsersAPI.Repository;
 
 public interface IUserRepository
 {

@@ -1,6 +1,7 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using UsersAPI.Models;
+using UsersAPI.DTOs;
+using UsersAPI.Services;
 
 namespace UsersAPI.Namespace
 {

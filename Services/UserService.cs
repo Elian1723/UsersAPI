@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Http.HttpResults;
+﻿using UsersAPI.DTOs;
 using UsersAPI.Models;
+using UsersAPI.Repository;
 
-namespace UsersAPI;
+namespace UsersAPI.Services;
 
 public class UserService : IUserService
 {

@@ -1,7 +1,9 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
-using UsersAPI;
 using UsersAPI.Data;
+using UsersAPI.DTOs;
+using UsersAPI.Repository;
+using UsersAPI.Services;
 using UsersAPI.Validators;
 
 var builder = WebApplication.CreateBuilder(args);
