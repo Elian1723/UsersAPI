@@ -16,11 +16,38 @@ public class UserService : IUserService
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+    public async Task<IEnumerable<UserDto>> GetAllUsersAsync(int page = 0, int pageSize = 10)
     {
-        var users = await _userRepository.GetAllAsync();
+        if (page < 0)
+        {
+            throw new InvalidOperationException("The page value should not be a negative number");
+        }
+
+        if (pageSize < 0)
+        {
+            throw new InvalidOperationException("The pageSize value should not be a negative number");
+        }
+
+        var users = await _userRepository.GetAllAsync(page, pageSize);
 
         return _mapper.Map<IEnumerable<UserDto>>(users);
+    }
+
+    public async Task<(IEnumerable<UserDto> users, int totalCount)> GetAllUsersWithCountAsync(int page = 0, int pageSize = 10)
+    {
+        if (page < 0)
+        {
+            throw new InvalidOperationException("The page value should not be a negative number");
+        }
+
+        if (pageSize < 0)
+        {
+            throw new InvalidOperationException("The pageSize value should not be a negative number");
+        }
+
+        var (users, totalCount) = await _userRepository.GetAllWithCountAsync(page, pageSize);
+
+        return (_mapper.Map<IEnumerable<UserDto>>(users), totalCount);
     }
 
     public async Task<UserDto?> GetUserByIdAsync(int id)
@@ -43,11 +70,38 @@ public class UserService : IUserService
         return _mapper.Map<UserDto>(user);
     }
 
-    public async Task<IEnumerable<UserDto>> GetActiveUsersAsync()
+    public async Task<IEnumerable<UserDto>> GetActiveUsersAsync(int page = 0, int pageSize = 10)
     {
-        var users = await _userRepository.GetActiveUsersAsync();
+        if (page < 0)
+        {
+            throw new InvalidOperationException("The page value should not be a negative number");
+        }
+
+        if (pageSize < 0)
+        {
+            throw new InvalidOperationException("The pageSize value should not be a negative number");
+        }
+        
+        var users = await _userRepository.GetActiveUsersAsync(page, pageSize);
 
         return _mapper.Map<IEnumerable<UserDto>>(users);
+    }
+
+    public async Task<(IEnumerable<UserDto> users, int totalCount)> GetActiveUsersWithCountAsync(int page = 0, int pageSize = 10)
+    {
+        if (page < 0)
+        {
+            throw new InvalidOperationException("The page value should not be a negative number");
+        }
+
+        if (pageSize < 0)
+        {
+            throw new InvalidOperationException("The pageSize value should not be a negative number");
+        }
+        
+        var (users, totalCount) = await _userRepository.GetActiveUsersWithCountAsync(page, pageSize);
+
+        return (_mapper.Map<IEnumerable<UserDto>>(users), totalCount);
     }
 
     public async Task<UserDto> CreateUserAsync(UserCreateDto userCreateDto)

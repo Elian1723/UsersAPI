@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using UsersAPI.DTOs;
 using UsersAPI.Services;
 
-namespace UsersAPI.Namespace
+namespace UsersAPI.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -12,7 +12,7 @@ namespace UsersAPI.Namespace
         private readonly IUserService _userService;
         private readonly IValidator<UserCreateDto> _userCreateValidator;
         private readonly IValidator<UserUpdateDto> _userUpdateValidator;
-
+ 
         public UserController(IUserService userService, IValidator<UserCreateDto> userCreateValidator, IValidator<UserUpdateDto> userUpdateValidator)
         {
             _userService = userService;
@@ -21,10 +21,24 @@ namespace UsersAPI.Namespace
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllUsers()
+        public async Task<IActionResult> GetAllUsers(int page = 0, int pageSize = 10)
         {
-            var users = await _userService.GetAllUsersAsync();
-            return Ok(users.ToList());
+            try
+            {
+                var (users, totalCount) = await _userService.GetAllUsersWithCountAsync(page, pageSize);
+                var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+                Response.Headers["X-Current-Page"] = page.ToString();
+                Response.Headers["X-Page-Size"] = pageSize.ToString();
+                Response.Headers["X-Total"] = totalCount.ToString();
+                Response.Headers["X-Total-Pages"] = totalPages.ToString();
+
+                return Ok(users.ToList());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpGet("{id}")]
@@ -46,10 +60,24 @@ namespace UsersAPI.Namespace
         }
 
         [HttpGet("active")]
-        public async Task<IActionResult> GetActiveUsers()
+        public async Task<IActionResult> GetActiveUsers(int page = 0, int pageSize = 10)
         {
-            var users = await _userService.GetActiveUsersAsync();
-            return Ok(users.ToList());
+            try
+            {
+                var (users, totalCount) = await _userService.GetActiveUsersWithCountAsync(page, pageSize);
+                var totalPages = (int)Math.Ceiling((double)totalCount / pageSize);
+
+                Response.Headers["X-Current-Page"] = page.ToString();
+                Response.Headers["X-Page-Size"] = pageSize.ToString();
+                Response.Headers["X-Total"] = totalCount.ToString();
+                Response.Headers["X-Total-Pages"] = totalPages.ToString();
+
+                return Ok(users.ToList());
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost]
